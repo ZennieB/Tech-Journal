@@ -10,7 +10,7 @@ namespace Tech_Journal_ConsoleApp
 {
     public class Journal
     {
-        public string JournalEntry()
+        public string CreateJournalEntry()
         {
             Console.WriteLine("\nPlease enter today's journal entry:");
             string entry = Console.ReadLine();

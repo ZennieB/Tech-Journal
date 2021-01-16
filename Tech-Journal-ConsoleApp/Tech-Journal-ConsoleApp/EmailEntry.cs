@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Tech_Journal_ConsoleApp
 {
-    class SendEmail
+    class EmailEntry
     {
         public const string Path = "c:\\temp\\appsettings.txt";
 
@@ -18,45 +18,57 @@ namespace Tech_Journal_ConsoleApp
         private string _emailPassword;
 
 
-        public SendEmail()
+        public EmailEntry()
         {
             _validEmail = false;
         }
-        public void ValidateEmailSettings()
+
+        public bool CheckforEmailSettings()
         {
             if (!File.Exists(Path))
             {
-                using (var sw = File.AppendText(Path))
-                {
-                    Console.WriteLine("\nEmail Settings were not found. Creating file to store email settings.");
-                    while (!_validEmail)
-                    {
-                        Console.WriteLine("\nPlease enter an email address to send the Journal entry from");
-                        _emailUsername = Console.ReadLine();
-                        _validEmail = IsValidEmailAddress(_emailUsername);
-                    }
-                    sw.WriteLine(_emailUsername);
-                    Console.WriteLine("\nPlease enter the password for that email address");
-                    _emailPassword = Console.ReadLine();
-                    sw.WriteLine(_emailPassword);
-                    _validEmail = false;
-                }
+                return false;
             }
             else
             {
-                using (var ab = new StreamReader(Path))
-                {
-                    _emailUsername = ab.ReadLine();
-                    _emailPassword = ab.ReadLine();
-                }
+                return true;
             }
         }
-        public void Send(string entry, string userName)
+
+        public void GenerateSenderEmailSettings()
+        {
+            using (var sw = File.AppendText(Path))
+            {
+                Console.WriteLine("Email Settings were not found. Creating file to store email settings.");
+                while (!_validEmail)
+                {
+                    Console.WriteLine("Please enter an email address to send the Journal entry from");
+                    _emailUsername = Console.ReadLine();
+                    _validEmail = IsValidEmailAddress(_emailUsername);
+                }
+                sw.WriteLine(_emailUsername);
+                Console.WriteLine("Please enter the password for that email address");
+                _emailPassword = Console.ReadLine();
+                sw.WriteLine(_emailPassword);
+                _validEmail = false;
+            }
+        }
+
+        public void ReadSenderEmailSettings()
+        {
+            using (var emailSettings = new StreamReader(Path))
+            {
+                _emailUsername = emailSettings.ReadLine();
+                _emailPassword = emailSettings.ReadLine();
+            }
+        }
+        
+        public void SendEmail(string entry, string userName)
         {
 
             while (!_validEmail)
             {
-                Console.WriteLine("\nPlease enter a valid email address to send the journal entry:");
+                Console.WriteLine("Please enter a valid email address to send the journal entry:");
                 _toThisEmailAddress = Console.ReadLine();
                 _validEmail = IsValidEmailAddress(_toThisEmailAddress);
             }

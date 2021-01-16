@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Tech-Journal-ConsoleApp/Tech-Journal-ConsoleApp/obj
+/Tech-Journal-ConsoleApp/.vs/Tech-Journal-ConsoleApp/v16

@@ -1,81 +1,66 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 
 namespace Tech_Journal_ConsoleApp
 {
-    class EmailEntry
+    public class EmailEntry
     {
         public const string Path = "c:\\temp\\appsettings.txt";
-
-        private bool _validEmail;
-        private string _toThisEmailAddress;
-        private string _emailUsername;
+        private string _toEmailAddress;
+        private string _fromEmailAddress;
         private string _emailPassword;
-
-
+        
         public EmailEntry()
         {
-            _validEmail = false;
+            
         }
 
-        public bool CheckforEmailSettings()
+        public bool CheckForEmailSettings()
         {
-            if (!File.Exists(Path))
+            return File.Exists(Path);
+        }
+
+        public string GetValidEmailAddress(string email,string reason)
+        {
+            while (!IsValidEmailAddress(email))
             {
-                return false;
+                Console.WriteLine($"Please enter a valid email address to {reason}");
+                email = Console.ReadLine();
             }
-            else
-            {
-                return true;
-            }
+            return email;
         }
 
         public void GenerateSenderEmailSettings()
         {
-            using (var sw = File.AppendText(Path))
-            {
-                Console.WriteLine("Email Settings were not found. Creating file to store email settings.");
-                while (!_validEmail)
-                {
-                    Console.WriteLine("Please enter an email address to send the Journal entry from");
-                    _emailUsername = Console.ReadLine();
-                    _validEmail = IsValidEmailAddress(_emailUsername);
-                }
-                sw.WriteLine(_emailUsername);
-                Console.WriteLine("Please enter the password for that email address");
-                _emailPassword = Console.ReadLine();
-                sw.WriteLine(_emailPassword);
-                _validEmail = false;
-            }
+            using var sw = File.AppendText(Path);
+
+            Console.WriteLine("Email Settings were not found. Creating file to store email settings.");
+            _fromEmailAddress = GetValidEmailAddress(_fromEmailAddress, "send from:");
+            sw.WriteLine(_fromEmailAddress);
+
+            Console.WriteLine("Please enter the password for that email address");
+            _emailPassword = Console.ReadLine();
+            sw.WriteLine(_emailPassword);
         }
 
         public void ReadSenderEmailSettings()
         {
-            using (var emailSettings = new StreamReader(Path))
-            {
-                _emailUsername = emailSettings.ReadLine();
-                _emailPassword = emailSettings.ReadLine();
-            }
+            using var emailSettings = new StreamReader(Path);
+            _fromEmailAddress = emailSettings.ReadLine();
+            _emailPassword = emailSettings.ReadLine();
         }
         
         public void SendEmail(string entry, string userName)
         {
-
-            while (!_validEmail)
-            {
-                Console.WriteLine("Please enter a valid email address to send the journal entry:");
-                _toThisEmailAddress = Console.ReadLine();
-                _validEmail = IsValidEmailAddress(_toThisEmailAddress);
-            }
+            Console.WriteLine("Sending email");
+            _toEmailAddress = GetValidEmailAddress(_toEmailAddress,"send to:");
 
             try
             {
-                var message = new MailMessage(_emailUsername, _toThisEmailAddress)
+                var message = new MailMessage(_fromEmailAddress, _toEmailAddress)
                 {
                     Subject = $"Journal Entry for {userName},{DateTime.Now:yyyy-MM-dd}",
                     Body = @entry
@@ -83,7 +68,7 @@ namespace Tech_Journal_ConsoleApp
                 var smtpClient = new SmtpClient("smtp.gmail.com")
                 {
                     Port = 587,
-                    Credentials = new NetworkCredential(_emailUsername, _emailPassword),
+                    Credentials = new NetworkCredential(_fromEmailAddress, _emailPassword),
                     EnableSsl = true,
                 };
                 smtpClient.Send(message);

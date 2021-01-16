@@ -2,14 +2,13 @@
 
 namespace Tech_Journal_ConsoleApp
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var journal = new Journal();
             var sendEmail = new EmailEntry();
-            var file = sendEmail.CheckforEmailSettings();
-
+            var file = sendEmail.CheckForEmailSettings();
             if (!file)
             {
                 sendEmail.GenerateSenderEmailSettings();
@@ -18,18 +17,11 @@ namespace Tech_Journal_ConsoleApp
             {
                 sendEmail.ReadSenderEmailSettings();
             }
-
             Console.WriteLine("Please enter your name:");
             var userName = Console.ReadLine();
-            GetWelcomeMessage(userName);
+            Console.WriteLine($"Hello {userName}! Today's Date is {DateTime.Now}");
             var entry = journal.CreateJournalEntry();
             sendEmail.SendEmail(entry, userName);
-        }
-        public static string GetWelcomeMessage(string user)
-        {
-            string userName = Console.ReadLine();
-            Console.WriteLine($"Hello {user}! Today's Date is {DateTime.Now}");
-            return userName;
         }
     }
 }
